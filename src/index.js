@@ -23,13 +23,22 @@ app.post("/sign-up", (req, res) => {
     res.status(201).send({ message: "OK" });
 });
 
+
 app.post("/tweets", (req, res) => {
-    const { user, tweet } = req.body;
+     const { user } = req.headers;
+    const { tweet } = req.body;
  
-    if (!user || !tweet) {
-      return res.status(400).send({ error: "O usuário e o tweet devem ser enviados no corpo da requisição" });
+    if (!user) {
+      res.status(400).json({ error: "Missing username in request headers" });
+      return;
     }
  
+    if (!tweet) {
+      res.status(400).json({ error: "Missing tweet in request body" });
+      return;
+    }
+
+
     const newTweet = {
       username: user,
       tweet: `${tweet} ${tweets.length + 1}`,

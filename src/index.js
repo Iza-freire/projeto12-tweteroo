@@ -29,17 +29,12 @@ app.post("/tweets", (req, res) => {
   const { tweet } = req.body;
 
   if (!user) {
-    res.status(400).json({ error: "Missing username in request headers" });
+    res.status(400).json({ error: "UNAUTHORIZED" });
     return;
   }
 
   if (!tweet) {
     res.status(400).json({ error: "Missing tweet in request body" });
-    return;
-  }
-
-  if (!isUserRegistered(user)) {
-    res.status(401).send({ message: "UNAUTHORIZED" });
     return;
   }
 

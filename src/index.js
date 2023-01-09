@@ -24,23 +24,22 @@ app.post("/sign-up", (req, res) => {
 });
 
 app.post("/tweets", (req, res) => {
-  const { user } = req.headers;
-  const { tweet } = req.body;
+    const { user, tweet } = req.body;
+ 
+    if (!user || !tweet) {
+      return res.status(400).send({ error: "O usuário e o tweet devem ser enviados no corpo da requisição" });
+    }
+ 
+    const newTweet = {
+      username: user,
+      tweet: `${tweet} ${tweets.length + 1}`,
+    };
+ 
+    tweets.push(newTweet);
+ 
+    res.status(201).send({ message: "OK" });
+  });
 
-  if (!user) {
-    res.status(400).send({ error: "Envie o username" });
-    return;
-  }
-
-  if (!tweet) {
-    res.status(400).send({ error: "Envie um tweet!" });
-    return;
-  }
-
-  tweets.push({ username: user, tweet: `${tweet} ${tweets.length + 1}` });
-
-  res.status(201).send({ message: "OK" });
-});
 
 
 

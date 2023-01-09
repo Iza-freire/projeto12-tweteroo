@@ -49,19 +49,18 @@ app.post("/tweets", (req, res) => {
 });
 
   
- app.get("/tweets", (req, res) => {
-    const recentTweets = tweets.slice(-10).reverse();
- 
-    const tweetsWithAvatar = recentTweets.map((tweet) => {
-      const user = users.find((u) => u.username === tweet.username);
-      return {
-        ...tweet,
-        avatar: user.avatar,
-      };
+app.post("/tweets", (req, res) => {
+    const tweetsWithAvatar = tweets.map(tweet => {
+      const user = users.get(tweet.username);
+      return { ...tweet, avatar: user.avatar };
     });
+    const reversedTweets = tweetsWithAvatar.reverse();
  
-    res.send(tweetsWithAvatar);
+    res.send(reversedTweets.slice(-10));
+   
   });
+ 
+
  
 
 

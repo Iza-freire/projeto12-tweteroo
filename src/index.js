@@ -48,7 +48,21 @@ app.post("/tweets", (req, res) => {
  
     res.status(201).send({ message: "OK" });
   });
-
+  
+ app.get("/tweets", (req, res) => {
+    const recentTweets = tweets.slice(-10).reverse();
+ 
+    const tweetsWithAvatar = recentTweets.map((tweet) => {
+      const user = users.find((u) => u.username === tweet.username);
+      return {
+        ...tweet,
+        avatar: user.avatar,
+      };
+    });
+ 
+    res.send(tweetsWithAvatar);
+  });
+ 
 
 
 

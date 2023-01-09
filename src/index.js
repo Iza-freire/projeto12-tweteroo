@@ -1,62 +1,63 @@
 import express from "express";
-import cors from "cors"
+import cors from "cors";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
- 
-const users = new Map();
+
+const users = [];
 const tweets = [];
- 
-app.post("/sign-up", (req, res) => {
-    const { username, avatar } = req.body;
- 
-    if (!username || !avatar) {
-      res.status(400).send({ error: "Todos os campos são obrigatórios!" });
-      return;
-    }
- 
-    const userId = Date.now() + Math.random().toString(36).substring(2, 15);
- 
-    users.set(username, { avatar, userId });
- 
-    res.status(201).send({ message: "OK" });
+
+app.post("/sign-up", (request, response) => {
+  const { username, avatar } = request.body;
+  if (!username || !avatar) {
+    response.status(400).send({ error: "Todos os campos são obrigatórios" });
+    return;
+  }
+
+  const newUser = { username, avatar };
+  users.push(newUser);
+
+  response.status(201).send({ message: "OK" });
 });
 
 
-app.post("/tweets", (req, res) => {
-  const { user } = req.headers;
-  const { tweet } = req.body;
+app.post("/tweets", (request, response) => {
+  const { user } = request.headers;
+  const { tweet } = request.body;
 
   if (!user) {
-    res.status(400).json({ error: "UNAUTHORIZED" });
+    response.status(400).send({ error: "Please send a username" });
     return;
   }
 
   if (!tweet) {
-    res.status(400).json({ error: "Missing tweet in request body" });
+    response.status(400).send({ error: "Please send a tweet!" });
     return;
   }
 
-  const newTweet = {
-    username: user,
-    tweet: `${tweet} ${tweets.length + 1}`,
-  };
+  const registeredUser = users.find(u => u.username === user);
+  if (!registeredUser) {
+    response.status(401).send({ error: "Unauthorized" });
+    return;
+  }
 
+  const newTweet = { username: user, tweet: `${tweet} ${tweets.length + 1}` };
   tweets.push(newTweet);
 
-  res.status(201).send({ message: "OK" });
+  response.status(201).send({ message: "OK" });
 });
 
+
   
-app.post("/tweets", (req, res) => {
-    const tweetsWithAvatar = tweets.map(tweet => {
-      const user = users.get(tweet.username);
-      return { ...tweet, avatar: user.avatar };
+app.get("/tweets", (req, res) => {
+
+    tweets.forEach((tweet) => {
+      const {avatar} = users.find((user) => user.username === tweet.username)
+      tweet.avatar = avatar
     });
-    const reversedTweets = tweetsWithAvatar.reverse();
  
-    res.send(reversedTweets.slice(-10));
+    res.send(tweets.slice(-10));
    
   });
  

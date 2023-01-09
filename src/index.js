@@ -25,29 +25,34 @@ app.post("/sign-up", (req, res) => {
 
 
 app.post("/tweets", (req, res) => {
-     const { user } = req.headers;
-    const { tweet } = req.body;
- 
-    if (!user) {
-      res.status(400).json({ error: "Missing username in request headers" });
-      return;
-    }
- 
-    if (!tweet) {
-      res.status(400).json({ error: "Missing tweet in request body" });
-      return;
-    }
+  const { user } = req.headers;
+  const { tweet } = req.body;
 
+  if (!user) {
+    res.status(400).json({ error: "Missing username in request headers" });
+    return;
+  }
 
-    const newTweet = {
-      username: user,
-      tweet: `${tweet} ${tweets.length + 1}`,
-    };
- 
-    tweets.push(newTweet);
- 
-    res.status(201).send({ message: "OK" });
-  });
+  if (!tweet) {
+    res.status(400).json({ error: "Missing tweet in request body" });
+    return;
+  }
+
+  if (!isUserRegistered(user)) {
+    res.status(401).send({ message: "UNAUTHORIZED" });
+    return;
+  }
+
+  const newTweet = {
+    username: user,
+    tweet: `${tweet} ${tweets.length + 1}`,
+  };
+
+  tweets.push(newTweet);
+
+  res.status(201).send({ message: "OK" });
+});
+
   
  app.get("/tweets", (req, res) => {
     const recentTweets = tweets.slice(-10).reverse();
@@ -63,8 +68,6 @@ app.post("/tweets", (req, res) => {
     res.send(tweetsWithAvatar);
   });
  
-
-
 
 
 app.listen(5000, () => console.log("Server running in port: 5000"));
